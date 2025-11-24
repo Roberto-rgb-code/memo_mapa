@@ -164,6 +164,21 @@
             margin-left: 28px;
         }
         
+        #colonia-selector {
+            transition: all 0.3s ease;
+        }
+        
+        #colonia-selector:hover {
+            border-color: #764ba2 !important;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+        }
+        
+        #colonia-selector:focus {
+            outline: none;
+            border-color: #764ba2 !important;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
         /* Charts Sidebar (Right) */
         .charts-sidebar {
             width: 350px;
@@ -423,6 +438,10 @@
                 gap: 10px;
             }
             
+            .stat-card:last-child {
+                grid-column: 1 / -1;
+            }
+            
             .stat-card {
                 padding: 12px;
             }
@@ -571,6 +590,22 @@
                     <div class="value" id="stat-centros">-</div>
                     <div class="label">Cuidado</div>
                 </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <h4>Escuelas</h4>
+                    <div class="value" id="stat-escuelas">-</div>
+                    <div class="label">Establecimientos</div>
+                </div>
+            </div>
+            
+            <h3 style="margin-top: 30px;">📍 Navegar a Colonia</h3>
+            <div class="layer-control" style="margin-bottom: 20px;">
+                <label for="colonia-selector" style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Seleccionar colonia:</label>
+                <select id="colonia-selector" style="width: 100%; padding: 10px; border: 2px solid #667eea; border-radius: 8px; font-size: 14px; background: white; cursor: pointer;">
+                    <option value="">-- Todas las colonias --</option>
+                </select>
+                <div style="margin-top: 8px; font-size: 11px; color: #666;">
+                    Selecciona una colonia para hacer zoom automático
+                </div>
             </div>
             
             <h3 style="margin-top: 30px;">🗺️ Capas del Mapa</h3>
@@ -609,6 +644,13 @@
                 </label>
                 <div class="layer-info" id="centros-cuidado-count">Cargando...</div>
             </div>
+            <div class="layer-control">
+                <label>
+                    <input type="checkbox" id="escuelas-layer" checked>
+                    Escuelas
+                </label>
+                <div class="layer-info" id="escuelas-count">Cargando...</div>
+            </div>
             
         </div>
         
@@ -640,6 +682,10 @@
                 <div class="legend-item">
                     <div class="legend-color" style="background: #9b59b6;"></div>
                     <span>Centros de Cuidado</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #f5576c;"></div>
+                    <span>Escuelas</span>
                 </div>
             </div>
         </div>
@@ -673,13 +719,30 @@
         const MAP_CENTER = [20.72, -103.40];
         const INITIAL_ZOOM = 12;
         
-        // Inicializar mapa
-        const map = L.map('map').setView(MAP_CENTER, INITIAL_ZOOM);
+        // Inicializar mapa con controles mejorados
+        const map = L.map('map', {
+            zoomControl: true,
+            attributionControl: true
+        }).setView(MAP_CENTER, INITIAL_ZOOM);
         
         // Agregar capa base de OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
             maxZoom: 19
+        }).addTo(map);
+        
+        // Agregar controles de zoom personalizados
+        L.control.zoom({
+            position: 'topleft',
+            zoomInTitle: 'Acercar',
+            zoomOutTitle: 'Alejar'
+        }).addTo(map);
+        
+        // Agregar control de escala
+        L.control.scale({
+            position: 'bottomleft',
+            metric: true,
+            imperial: false
         }).addTo(map);
         
         // Variables para almacenar las capas y datos
@@ -691,10 +754,12 @@
         
         let delitosData = [];
         let coloniasData = [];
+        let escuelasLayer = null;
+        let coloniasLayersMap = {}; // Mapa de colonias individuales para zoom
         
         // Contador de capas cargadas para ajustar el mapa
         let capasCargadas = 0;
-        const totalCapas = 5;
+        const totalCapas = 6;
         
         // Función para ajustar el mapa a todas las capas visibles
         function ajustarMapaACapas() {
@@ -714,6 +779,9 @@
             }
             if (centrosCuidadoLayer && document.getElementById('centros-cuidado-layer').checked) {
                 layers.push(centrosCuidadoLayer);
+            }
+            if (escuelasLayer && document.getElementById('escuelas-layer').checked) {
+                layers.push(escuelasLayer);
             }
             
             if (layers.length > 0) {
@@ -1042,8 +1110,95 @@
                 .catch(error => {
                     console.warn('Error al cargar centros de cuidado:', error);
                     document.getElementById('centros-cuidado-count').textContent = 'Error al cargar';
+                    capasCargadas++;
+                    if (capasCargadas === totalCapas) {
+                        setTimeout(ajustarMapaACapas, 500);
+                    }
                     hideLoading();
                 });
+        }
+        
+        // Cargar capa de escuelas desde CSV
+        function loadEscuelas() {
+            parseCSV('escuelas_filtradas.csv', function(data) {
+                const features = [];
+                let count = 0;
+                
+                data.forEach(row => {
+                    try {
+                        const lat = parseFloat(row.Latitud);
+                        const lon = parseFloat(row.Longitud);
+                        
+                        if (!isNaN(lat) && !isNaN(lon) && lat !== 0 && lon !== 0) {
+                            features.push({
+                                type: "Feature",
+                                geometry: {
+                                    type: "Point",
+                                    coordinates: [lon, lat]
+                                },
+                                properties: {
+                                    nombre: row['Nombre de la Unidad Económica'] || '',
+                                    razon_social: row['Razón social'] || '',
+                                    actividad: row['Nombre de clase de la actividad'] || '',
+                                    colonia: row['Nombre de asentamiento humano'] || '',
+                                    municipio: row['Municipio'] || '',
+                                    codigo_postal: row['Código Postal'] || '',
+                                    telefono: row['Número de teléfono'] || '',
+                                    correo: row['Correo electrónico'] || '',
+                                    sitio_web: row['Sitio en Internet'] || '',
+                                    tipo_establecimiento: row['Tipo de establecimiento'] || ''
+                                }
+                            });
+                            count++;
+                        }
+                    } catch (e) {
+                        // Ignorar filas con errores
+                    }
+                });
+                
+                escuelasLayer = L.geoJSON(features, {
+                    pointToLayer: function(feature, latlng) {
+                        return L.circleMarker(latlng, {
+                            radius: 6,
+                            fillColor: '#f5576c',
+                            color: '#e63946',
+                            weight: 2,
+                            opacity: 0.9,
+                            fillOpacity: 0.7
+                        });
+                    },
+                    onEachFeature: function(feature, layer) {
+                        const props = feature.properties;
+                        let popupContent = '<div class="info"><h4>🏫 Escuela</h4>';
+                        popupContent += `<div class="info-row"><div class="info-label">Nombre</div><div class="info-value">${props.nombre || 'N/A'}</div></div>`;
+                        popupContent += `<div class="info-row"><div class="info-label">Actividad</div><div class="info-value">${props.actividad || 'N/A'}</div></div>`;
+                        popupContent += `<div class="info-row"><div class="info-label">Colonia</div><div class="info-value">${props.colonia || 'N/A'}</div></div>`;
+                        if (props.telefono) {
+                            popupContent += `<div class="info-row"><div class="info-label">Teléfono</div><div class="info-value">${props.telefono}</div></div>`;
+                        }
+                        if (props.correo) {
+                            popupContent += `<div class="info-row"><div class="info-label">Correo</div><div class="info-value">${props.correo}</div></div>`;
+                        }
+                        if (props.sitio_web) {
+                            popupContent += `<div class="info-row"><div class="info-label">Web</div><div class="info-value"><a href="${props.sitio_web}" target="_blank">${props.sitio_web}</a></div></div>`;
+                        }
+                        popupContent += '</div>';
+                        layer.bindPopup(popupContent);
+                    }
+                });
+                
+                document.getElementById('escuelas-count').textContent = `${count} escuelas`;
+                document.getElementById('stat-escuelas').textContent = count;
+                
+                if (document.getElementById('escuelas-layer').checked) {
+                    escuelasLayer.addTo(map);
+                }
+                
+                capasCargadas++;
+                if (capasCargadas === totalCapas) {
+                    setTimeout(ajustarMapaACapas, 500);
+                }
+            });
         }
         
         // Cargar GeoJSON
@@ -1083,6 +1238,13 @@
                         const props = feature.properties;
                         coloniasData.push(props);
                         
+                        // Almacenar la capa individual de la colonia para zoom
+                        const nombreColonia = props.NOMBRE || 'Sin nombre';
+                        if (!coloniasLayersMap[nombreColonia]) {
+                            coloniasLayersMap[nombreColonia] = [];
+                        }
+                        coloniasLayersMap[nombreColonia].push(layer);
+                        
                         let popupContent = '<div class="info"><h4>🏘️ Colonia</h4>';
                         
                         // Mostrar todas las variables importantes
@@ -1121,6 +1283,16 @@
                     if (document.getElementById('colonias-layer').checked) {
                         coloniasLayer.addTo(map);
                     }
+                    
+                    // Poblar el selector de colonias
+                    const selector = document.getElementById('colonia-selector');
+                    const nombresUnicos = Object.keys(coloniasLayersMap).sort();
+                    nombresUnicos.forEach(nombre => {
+                        const option = document.createElement('option');
+                        option.value = nombre;
+                        option.textContent = nombre;
+                        selector.appendChild(option);
+                    });
                     
                     updatePoblacionChart();
                     capasCargadas++;
@@ -1324,6 +1496,62 @@
             }
         });
         
+        document.getElementById('escuelas-layer').addEventListener('change', function(e) {
+            if (escuelasLayer) {
+                if (e.target.checked) {
+                    escuelasLayer.addTo(map);
+                } else {
+                    map.removeLayer(escuelasLayer);
+                }
+                setTimeout(ajustarMapaACapas, 100);
+            }
+        });
+        
+        // Selector de colonias para zoom
+        document.getElementById('colonia-selector').addEventListener('change', function(e) {
+            const nombreColonia = e.target.value;
+            
+            if (!nombreColonia) {
+                // Si se selecciona "Todas", ajustar a todas las colonias
+                ajustarMapaACapas();
+                return;
+            }
+            
+            const layers = coloniasLayersMap[nombreColonia];
+            if (layers && layers.length > 0) {
+                // Crear un grupo con todas las capas de esa colonia
+                const group = new L.featureGroup(layers);
+                const bounds = group.getBounds();
+                
+                if (bounds.isValid()) {
+                    // Hacer zoom a la colonia con animación
+                    map.flyToBounds(bounds, {
+                        padding: [50, 50],
+                        maxZoom: 16,
+                        duration: 1.5
+                    });
+                    
+                    // Resaltar la colonia temporalmente
+                    layers.forEach(layer => {
+                        layer.setStyle({
+                            color: '#ff0000',
+                            weight: 4,
+                            fillOpacity: 0.6
+                        });
+                        
+                        // Restaurar estilo después de 3 segundos
+                        setTimeout(() => {
+                            layer.setStyle({
+                                color: '#2563eb',
+                                weight: 3,
+                                fillOpacity: 0.4
+                            });
+                        }, 3000);
+                    });
+                }
+            }
+        });
+        
         // Toggle buttons para móviles
         document.getElementById('toggle-sidebar').addEventListener('click', function() {
             const sidebar = document.getElementById('sidebar');
@@ -1343,6 +1571,7 @@
             loadDelitos();
             loadRecreaciones();
             loadCentrosCuidado();
+            loadEscuelas();
         });
     </script>
 </body>

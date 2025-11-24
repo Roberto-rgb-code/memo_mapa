@@ -18,6 +18,7 @@
 !delitos_filtrados.csv
 !recreaciones_filtradas.csv
 !centros_de_cuidado_filtrados.xlsx
+!escuelas_filtradas.csv
 
 # Archivos Python
 *.py
@@ -41,6 +42,10 @@ test_*.html
 analizar_*.html
 mapa.html
 mapa_web.html
+
+# Incluir archivos HTML principales
+!index.html
+!mapa_completo.html
 
 # Archivos del sistema
 .DS_Store
