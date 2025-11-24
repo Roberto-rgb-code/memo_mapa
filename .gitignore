@@ -1,0 +1,57 @@
+# Archivos de datos originales (excluir)
+*.csv
+*.geojson
+*.xlsx
+*.xls
+*.shp
+*.shx
+*.dbf
+*.prj
+*.cpg
+*.sbn
+*.sbx
+*.json
+
+# Excepciones: Incluir solo los archivos filtrados necesarios para GitHub Pages
+!colonias_filtradas.geojson
+!rutas_filtradas.geojson
+!delitos_filtrados.csv
+!recreaciones_filtradas.csv
+!centros_de_cuidado_filtrados.xlsx
+
+# Archivos Python
+*.py
+*.pyc
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Archivos de Windows
+*.bat
+*.txt
+Thumbs.db
+Desktop.ini
+
+# Archivos de documentación (opcional - descomentar si no quieres subirlos)
+# *.md
+# !README.md
+
+# Archivos HTML de prueba/desarrollo
+test_*.html
+analizar_*.html
+mapa.html
+mapa_web.html
+
+# Archivos del sistema
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+
+# Archivos temporales
+*.tmp
+*.temp
+
