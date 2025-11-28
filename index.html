@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Colonias Filtradas (Mesa Colorada, Nextipac, San Juan de Ocotan, San Isidro, San Esteban)</title>
     
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Mapbox GL JS CSS -->
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet" />
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     
@@ -35,15 +35,101 @@
             z-index: 1000;
         }
         
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .header-title {
+            flex: 1;
+            min-width: 250px;
+        }
+        
         .header h1 {
             font-size: 24px;
             font-weight: 600;
+            margin-bottom: 5px;
         }
         
         .header p {
             font-size: 14px;
             opacity: 0.9;
-            margin-top: 5px;
+            margin: 0;
+        }
+        
+        .header-stats {
+            flex: 2;
+            min-width: 300px;
+        }
+        
+        .header-stats .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .header-stats .stat-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            text-align: center;
+            transition: transform 0.2s, background 0.2s;
+        }
+        
+        .header-stats .stat-card:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.25);
+        }
+        
+        .header-stats .stat-card h4 {
+            font-size: 10px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+        
+        .header-stats .stat-card .value {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        
+        .header-stats .stat-card .label {
+            font-size: 9px;
+            opacity: 0.85;
+        }
+        
+        .header-stats .stat-card.blue {
+            background: rgba(79, 172, 254, 0.3);
+        }
+        
+        .header-stats .stat-card.green {
+            background: rgba(67, 233, 123, 0.3);
+        }
+        
+        .header-stats .stat-card.red {
+            background: rgba(255, 107, 107, 0.3);
+        }
+        
+        .header-stats .stat-card.orange {
+            background: rgba(250, 112, 154, 0.3);
+        }
+        
+        .header-stats .stat-card.purple {
+            background: rgba(168, 237, 234, 0.3);
+        }
+        
+        .header-stats .stat-card[style*="f093fb"] {
+            background: rgba(240, 147, 251, 0.3) !important;
         }
         
         /* Main Container */
@@ -166,6 +252,13 @@
         
         #colonia-selector {
             transition: all 0.3s ease;
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
         }
         
         #colonia-selector:hover {
@@ -229,7 +322,148 @@
         #map {
             flex: 1;
             width: 100%;
+            min-height: 400px;
+            height: 100%;
             z-index: 1;
+        }
+        
+        /* Mapbox GL JS styles */
+        .mapboxgl-ctrl-logo {
+            display: none !important;
+        }
+        
+        .mapboxgl-popup {
+            max-width: 350px;
+        }
+        
+        .mapboxgl-popup-content {
+            padding: 0;
+            border-radius: 8px;
+        }
+        
+        /* Control 3D */
+        .mapboxgl-ctrl-3d {
+            background: white;
+            border-radius: 4px;
+            padding: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            margin: 10px;
+            min-width: 200px;
+        }
+        
+        .mapboxgl-ctrl-3d button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            margin: 5px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            display: block;
+            width: 100%;
+        }
+        
+        .mapboxgl-ctrl-3d button:hover {
+            background: #764ba2;
+        }
+        
+        /* Controles 3D avanzados - ocultos por defecto */
+        .mapboxgl-ctrl-3d-advanced {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .mapboxgl-ctrl-3d-advanced.show {
+            display: block;
+        }
+        
+        .mapboxgl-ctrl-3d-advanced .control-group {
+            margin-bottom: 15px;
+        }
+        
+        .mapboxgl-ctrl-3d-advanced label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .mapboxgl-ctrl-3d-advanced .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .mapboxgl-ctrl-3d-advanced input[type="range"] {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #e0e0e0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .mapboxgl-ctrl-3d-advanced input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+        
+        .mapboxgl-ctrl-3d-advanced input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .mapboxgl-ctrl-3d-advanced .value-display {
+            min-width: 50px;
+            text-align: right;
+            font-size: 11px;
+            color: #666;
+            font-weight: 600;
+        }
+        
+        .mapboxgl-ctrl-3d-advanced .zoom-controls {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+        
+        .mapboxgl-ctrl-3d-advanced .zoom-btn {
+            flex: 1;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .mapboxgl-ctrl-3d-advanced .zoom-btn:hover {
+            background: #764ba2;
+        }
+        
+        .mapboxgl-ctrl-3d-advanced .zoom-display {
+            text-align: center;
+            padding: 6px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #333;
         }
         
         /* Info Popup */
@@ -397,7 +631,15 @@
                 min-height: 400px;
             }
             
-            .stats-grid {
+            .header-content {
+                flex-direction: column;
+            }
+            
+            .header-stats {
+                width: 100%;
+            }
+            
+            .header-stats .stats-grid {
                 grid-template-columns: repeat(3, 1fr);
             }
             
@@ -413,6 +655,27 @@
         @media (max-width: 768px) {
             .header {
                 padding: 15px 20px;
+            }
+            
+            .header-stats .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            
+            .header-stats .stat-card {
+                padding: 10px;
+            }
+            
+            .header-stats .stat-card .value {
+                font-size: 18px;
+            }
+            
+            .header-stats .stat-card h4 {
+                font-size: 9px;
+            }
+            
+            .header-stats .stat-card .label {
+                font-size: 8px;
             }
             
             .header h1 {
@@ -436,10 +699,6 @@
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 10px;
-            }
-            
-            .stat-card:last-child {
-                grid-column: 1 / -1;
             }
             
             .stat-card {
@@ -470,9 +729,29 @@
                 padding: 10px;
                 font-size: 11px;
             }
+            
+            .stat-card:last-child {
+                grid-column: 1 / -1;
+            }
         }
         
         @media (max-width: 480px) {
+            .header-stats .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 6px;
+            }
+            
+            .header-stats .stat-card {
+                padding: 8px;
+            }
+            
+            .header-stats .stat-card .value {
+                font-size: 16px;
+            }
+            
+            .header-stats h3 {
+                font-size: 12px;
+            }
             .header {
                 padding: 12px 15px;
             }
@@ -554,53 +833,57 @@
 </head>
 <body>
     <div class="header">
-        <h1>📊 Dashboard Geoespacial</h1>
-        <p>Colonias: Mesa Colorada, Nextipac, San Juan de Ocotan, San Isidro, San Esteban - Zapopan, Jalisco</p>
+        <div class="header-content">
+            <div class="header-title">
+                <h1>📊 Dashboard Geoespacial 3D</h1>
+                <p>Colonias: Mesa Colorada, Nextipac, San Juan de Ocotan, San Isidro, San Esteban - Zapopan, Jalisco</p>
+            </div>
+            <div class="header-stats">
+                <h3 style="font-size: 14px; margin-bottom: 10px; opacity: 0.95;">📈 Estadísticas</h3>
+                <div class="stats-grid">
+                    <div class="stat-card blue">
+                        <h4>Colonias</h4>
+                        <div class="value" id="stat-colonias">-</div>
+                        <div class="label">Áreas filtradas</div>
+                    </div>
+                    <div class="stat-card green">
+                        <h4>Rutas</h4>
+                        <div class="value" id="stat-rutas">-</div>
+                        <div class="label">Transporte público</div>
+                    </div>
+                    <div class="stat-card red">
+                        <h4>Delitos</h4>
+                        <div class="value" id="stat-delitos">-</div>
+                        <div class="label">Registros</div>
+                    </div>
+                    <div class="stat-card orange">
+                        <h4>Recreaciones</h4>
+                        <div class="value" id="stat-recreaciones">-</div>
+                        <div class="label">Establecimientos</div>
+                    </div>
+                    <div class="stat-card purple">
+                        <h4>Centros</h4>
+                        <div class="value" id="stat-centros">-</div>
+                        <div class="label">Cuidado</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                        <h4>Escuelas</h4>
+                        <div class="value" id="stat-escuelas">-</div>
+                        <div class="label">Establecimientos</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     
     <div class="main-container">
         <button class="mobile-toggle" id="toggle-sidebar">☰ Stats</button>
         <button class="mobile-toggle" id="toggle-charts" style="top: 50px;">📊 Charts</button>
         <div class="sidebar" id="sidebar">
-            <h3>📈 Estadísticas</h3>
-            
-            <div class="stats-grid">
-                <div class="stat-card blue">
-                    <h4>Colonias</h4>
-                    <div class="value" id="stat-colonias">-</div>
-                    <div class="label">Áreas filtradas</div>
-                </div>
-                <div class="stat-card green">
-                    <h4>Rutas</h4>
-                    <div class="value" id="stat-rutas">-</div>
-                    <div class="label">Transporte público</div>
-                </div>
-                <div class="stat-card red">
-                    <h4>Delitos</h4>
-                    <div class="value" id="stat-delitos">-</div>
-                    <div class="label">Registros</div>
-                </div>
-                <div class="stat-card orange">
-                    <h4>Recreaciones</h4>
-                    <div class="value" id="stat-recreaciones">-</div>
-                    <div class="label">Establecimientos</div>
-                </div>
-                <div class="stat-card purple">
-                    <h4>Centros</h4>
-                    <div class="value" id="stat-centros">-</div>
-                    <div class="label">Cuidado</div>
-                </div>
-                <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                    <h4>Escuelas</h4>
-                    <div class="value" id="stat-escuelas">-</div>
-                    <div class="label">Establecimientos</div>
-                </div>
-            </div>
-            
-            <h3 style="margin-top: 30px;">📍 Navegar a Colonia</h3>
+            <h3 style="margin-top: 0;">📍 Navegar a Colonia</h3>
             <div class="layer-control" style="margin-bottom: 20px;">
                 <label for="colonia-selector" style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Seleccionar colonia:</label>
-                <select id="colonia-selector" style="width: 100%; padding: 10px; border: 2px solid #667eea; border-radius: 8px; font-size: 14px; background: white; cursor: pointer;">
+                <select id="colonia-selector">
                     <option value="">-- Todas las colonias --</option>
                 </select>
                 <div style="margin-top: 8px; font-size: 11px; color: #666;">
@@ -707,94 +990,262 @@
         </div>
     </div>
     
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Mapbox GL JS -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
     <!-- PapaParse para CSV -->
     <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
     <!-- SheetJS para leer Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     
     <script>
-        // Coordenadas centradas en las colonias filtradas (se ajustarán automáticamente)
-        const MAP_CENTER = [20.72, -103.40];
+        // Token de Mapbox
+        mapboxgl.accessToken = 'pk.eyJ1Ijoia2V2aW5yb2JlcnRvIiwiYSI6ImNtZ2hhcHAyZzB0bjQya29pcmtoa2xuMm0ifQ.FPM4l0bfhiwenMZ6jVr2kA';
+        
+        // Coordenadas centradas en las colonias filtradas
+        const MAP_CENTER = [-103.40, 20.72]; // [lng, lat] para Mapbox
         const INITIAL_ZOOM = 12;
         
-        // Inicializar mapa con controles mejorados
-        const map = L.map('map', {
-            zoomControl: true,
-            attributionControl: true
-        }).setView(MAP_CENTER, INITIAL_ZOOM);
+        // Asegurar que el contenedor tenga altura antes de inicializar
+        const mapContainer = document.getElementById('map');
+        if (mapContainer) {
+            mapContainer.style.height = '100%';
+        }
         
-        // Agregar capa base de OpenStreetMap
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-            maxZoom: 19
-        }).addTo(map);
+        // Inicializar mapa Mapbox con vista 2D normal
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/kevinroberto/cmgharq80006y01ryg3vl8zc5', // Tu estilo personalizado
+            center: MAP_CENTER,
+            zoom: INITIAL_ZOOM,
+            pitch: 0, // Vista 2D por defecto
+            bearing: 0, // Rotación (0-360)
+            antialias: true // Suavizado para mejor calidad
+        });
         
-        // Agregar controles de zoom personalizados
-        L.control.zoom({
-            position: 'topleft',
-            zoomInTitle: 'Acercar',
-            zoomOutTitle: 'Alejar'
-        }).addTo(map);
+        // Manejo de errores
+        map.on('error', function(e) {
+            console.error('Error en Mapbox:', e);
+            alert('Error al cargar el mapa. Verifica tu token y estilo de Mapbox.');
+        });
+        
+        // Agregar controles de navegación
+        map.addControl(new mapboxgl.NavigationControl(), 'top-left');
         
         // Agregar control de escala
-        L.control.scale({
-            position: 'bottomleft',
-            metric: true,
-            imperial: false
-        }).addTo(map);
+        map.addControl(new mapboxgl.ScaleControl({
+            maxWidth: 100,
+            unit: 'metric'
+        }), 'bottom-left');
         
-        // Variables para almacenar las capas y datos
-        let coloniasLayer = null;
-        let rutasLayer = null;
-        let delitosLayer = null;
-        let recreacionesLayer = null;
-        let centrosCuidadoLayer = null;
+        // Control personalizado para 3D
+        let control3D = null;
+        let advancedControls = null;
+        map.on('load', function() {
+            const navControl = document.querySelector('.mapboxgl-ctrl-top-left');
+            control3D = document.createElement('div');
+            control3D.className = 'mapboxgl-ctrl mapboxgl-ctrl-3d';
+            control3D.innerHTML = `
+                <button id="toggle-3d">Vista 3D</button>
+                <button id="reset-view">Vista Normal</button>
+                <div id="advanced-3d-controls" class="mapboxgl-ctrl-3d-advanced">
+                    <div class="control-group">
+                        <label>Inclinación (Pitch): <span class="value-display" id="pitch-value">0°</span></label>
+                        <div class="slider-container">
+                            <input type="range" id="pitch-slider" min="0" max="60" value="0" step="1">
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label>Rotación (Bearing): <span class="value-display" id="bearing-value">0°</span></label>
+                        <div class="slider-container">
+                            <input type="range" id="bearing-slider" min="0" max="360" value="0" step="1">
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label>Zoom:</label>
+                        <div class="zoom-controls">
+                            <button class="zoom-btn" id="zoom-out">-</button>
+                            <div class="zoom-display" id="zoom-value">12</div>
+                            <button class="zoom-btn" id="zoom-in">+</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            navControl.appendChild(control3D);
+            
+            advancedControls = document.getElementById('advanced-3d-controls');
+            const pitchSlider = document.getElementById('pitch-slider');
+            const bearingSlider = document.getElementById('bearing-slider');
+            const pitchValue = document.getElementById('pitch-value');
+            const bearingValue = document.getElementById('bearing-value');
+            const zoomValue = document.getElementById('zoom-value');
+            const zoomInBtn = document.getElementById('zoom-in');
+            const zoomOutBtn = document.getElementById('zoom-out');
+            
+            // Actualizar valores cuando el mapa cambia
+            function updateControls() {
+                const pitch = Math.round(map.getPitch());
+                const bearing = Math.round(map.getBearing());
+                const zoom = map.getZoom().toFixed(1);
+                
+                pitchSlider.value = pitch;
+                bearingSlider.value = bearing;
+                pitchValue.textContent = pitch + '°';
+                bearingValue.textContent = bearing + '°';
+                zoomValue.textContent = zoom;
+            }
+            
+            // Actualizar controles cuando el mapa se mueve
+            map.on('moveend', updateControls);
+            map.on('zoomend', updateControls);
+            
+            // Slider de inclinación
+            pitchSlider.addEventListener('input', function() {
+                const pitch = parseInt(this.value);
+                pitchValue.textContent = pitch + '°';
+                map.easeTo({
+                    pitch: pitch,
+                    duration: 300
+                });
+            });
+            
+            // Slider de rotación
+            bearingSlider.addEventListener('input', function() {
+                const bearing = parseInt(this.value);
+                bearingValue.textContent = bearing + '°';
+                map.easeTo({
+                    bearing: bearing,
+                    duration: 300
+                });
+            });
+            
+            // Botones de zoom
+            zoomInBtn.addEventListener('click', function() {
+                map.zoomIn({ duration: 300 });
+            });
+            
+            zoomOutBtn.addEventListener('click', function() {
+                map.zoomOut({ duration: 300 });
+            });
+            
+            // Toggle 3D - Opción opcional para activar vista 3D
+            document.getElementById('toggle-3d').addEventListener('click', function() {
+                const currentPitch = map.getPitch();
+                if (currentPitch === 0) {
+                    // Activar vista 3D
+                    map.easeTo({
+                        pitch: 60,
+                        bearing: 0,
+                        duration: 1500
+                    });
+                    this.textContent = 'Vista 2D';
+                    // Mostrar controles avanzados
+                    advancedControls.classList.add('show');
+                    updateControls();
+                } else {
+                    // Volver a vista 2D
+                    map.easeTo({
+                        pitch: 0,
+                        bearing: 0,
+                        duration: 1500
+                    });
+                    this.textContent = 'Vista 3D';
+                    // Ocultar controles avanzados
+                    advancedControls.classList.remove('show');
+                }
+            });
+            
+            // Reset view
+            document.getElementById('reset-view').addEventListener('click', function() {
+                map.easeTo({
+                    center: MAP_CENTER,
+                    zoom: INITIAL_ZOOM,
+                    pitch: 0,
+                    bearing: 0,
+                    duration: 1500
+                });
+                advancedControls.classList.remove('show');
+                document.getElementById('toggle-3d').textContent = 'Vista 3D';
+            });
+            
+            // Inicializar valores
+            updateControls();
+            
+            // Cargar todas las capas después de que el mapa esté listo
+            loadColonias();
+            loadRutas();
+            loadDelitos();
+            loadRecreaciones();
+            loadCentrosCuidado();
+            loadEscuelas();
+        });
         
+        // Variables para almacenar datos
         let delitosData = [];
         let coloniasData = [];
-        let escuelasLayer = null;
-        let coloniasLayersMap = {}; // Mapa de colonias individuales para zoom
+        let coloniasLayersMap = {}; // Para zoom a colonias
         
-        // Contador de capas cargadas para ajustar el mapa
+        // Contador de capas cargadas
         let capasCargadas = 0;
         const totalCapas = 6;
         
         // Función para ajustar el mapa a todas las capas visibles
         function ajustarMapaACapas() {
-            const layers = [];
+            const bounds = new mapboxgl.LngLatBounds();
+            let hasBounds = false;
             
-            if (coloniasLayer && document.getElementById('colonias-layer').checked) {
-                layers.push(coloniasLayer);
-            }
-            if (rutasLayer && document.getElementById('rutas-layer').checked) {
-                layers.push(rutasLayer);
-            }
-            if (delitosLayer && document.getElementById('delitos-layer').checked) {
-                layers.push(delitosLayer);
-            }
-            if (recreacionesLayer && document.getElementById('recreaciones-layer').checked) {
-                layers.push(recreacionesLayer);
-            }
-            if (centrosCuidadoLayer && document.getElementById('centros-cuidado-layer').checked) {
-                layers.push(centrosCuidadoLayer);
-            }
-            if (escuelasLayer && document.getElementById('escuelas-layer').checked) {
-                layers.push(escuelasLayer);
-            }
+            const layerNames = ['colonias', 'rutas', 'delitos', 'recreaciones', 'centros-cuidado', 'escuelas'];
             
-            if (layers.length > 0) {
-                const group = new L.featureGroup(layers);
-                const bounds = group.getBounds();
+            layerNames.forEach(layerName => {
+                const checkboxId = layerName === 'centros-cuidado' ? 'centros-cuidado-layer' : `${layerName}-layer`;
+                const checkbox = document.getElementById(checkboxId);
                 
-                if (bounds.isValid()) {
-                    // Ajustar el mapa con padding para que se vea bien
-                    map.fitBounds(bounds, {
-                        padding: [50, 50], // padding en píxeles
-                        maxZoom: 15 // límite máximo de zoom
-                    });
+                if (checkbox && checkbox.checked) {
+                    const source = map.getSource(`${layerName}-source`);
+                    if (source && source._data) {
+                        const data = source._data;
+                        if (data.features && data.features.length > 0) {
+                            data.features.forEach(feature => {
+                                if (feature.geometry.type === 'Point') {
+                                    bounds.extend(feature.geometry.coordinates);
+                                    hasBounds = true;
+                                } else if (feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon') {
+                                    const coords = feature.geometry.coordinates;
+                                    coords.forEach(coord => {
+                                        if (Array.isArray(coord[0])) {
+                                            coord.forEach(point => {
+                                                if (Array.isArray(point[0])) {
+                                                    point.forEach(p => bounds.extend(p));
+                                                } else {
+                                                    bounds.extend(point);
+                                                }
+                                            });
+                                        } else {
+                                            bounds.extend(coord);
+                                        }
+                                    });
+                                    hasBounds = true;
+                                } else if (feature.geometry.type === 'LineString' || feature.geometry.type === 'MultiLineString') {
+                                    const coords = feature.geometry.coordinates;
+                                    coords.forEach(point => {
+                                        if (Array.isArray(point[0])) {
+                                            point.forEach(p => bounds.extend(p));
+                                        } else {
+                                            bounds.extend(point);
+                                        }
+                                    });
+                                    hasBounds = true;
+                                }
+                            });
+                        }
+                    }
                 }
+            });
+            
+            if (hasBounds) {
+                map.fitBounds(bounds, {
+                    padding: { top: 50, bottom: 50, left: 50, right: 50 },
+                    maxZoom: 15
+                });
             }
         }
         
@@ -833,7 +1284,66 @@
                 });
         }
         
-        // Cargar capa de delitos desde CSV
+        // Función para agregar capa de puntos en Mapbox
+        function addPointLayer(sourceId, layerId, features, color, strokeColor, radius, popupTitle, popupFields) {
+            if (map.getSource(sourceId)) {
+                map.getSource(sourceId).setData({
+                    type: 'FeatureCollection',
+                    features: features
+                });
+            } else {
+                map.addSource(sourceId, {
+                    type: 'geojson',
+                    data: {
+                        type: 'FeatureCollection',
+                        features: features
+                    }
+                });
+                
+                map.addLayer({
+                    id: layerId,
+                    type: 'circle',
+                    source: sourceId,
+                    paint: {
+                        'circle-radius': radius,
+                        'circle-color': color,
+                        'circle-stroke-color': strokeColor,
+                        'circle-stroke-width': 2,
+                        'circle-opacity': 0.7
+                    }
+                });
+                
+                // Popups
+                map.on('click', layerId, function(e) {
+                    const props = e.features[0].properties;
+                    let popupContent = `<div class="info"><h4>${popupTitle}</h4>`;
+                    
+                    popupFields.forEach(field => {
+                        const value = props[field.key] || field.value(props) || 'N/A';
+                        if (value !== 'N/A' && value !== '') {
+                            popupContent += `<div class="info-row"><div class="info-label">${field.label}</div><div class="info-value">${value}</div></div>`;
+                        }
+                    });
+                    
+                    popupContent += '</div>';
+                    
+                    new mapboxgl.Popup()
+                        .setLngLat(e.lngLat)
+                        .setHTML(popupContent)
+                        .addTo(map);
+                });
+                
+                // Cursor
+                map.on('mouseenter', layerId, function() {
+                    map.getCanvas().style.cursor = 'pointer';
+                });
+                map.on('mouseleave', layerId, function() {
+                    map.getCanvas().style.cursor = '';
+                });
+            }
+        }
+        
+        // Cargar capa de delitos
         function loadDelitos() {
             showLoading();
             parseCSV('delitos_filtrados.csv', function(data) {
@@ -854,64 +1364,46 @@
                                     coordinates: [lon, lat]
                                 },
                                 properties: {
-                                    fecha: row.fecha || '',
                                     delito: row.delito || '',
+                                    fecha: row.fecha || '',
                                     colonia: row.colonia || '',
-                                    municipio: row.municipio || '',
                                     hora: row.hora || '',
-                                    bien_afectado: row.bien_afectado || '',
-                                    zona_geografica: row.zona_geografica || ''
+                                    bien_afectado: row.bien_afectado || ''
                                 }
                             });
                             delitosData.push(row);
                             count++;
                         }
-                    } catch (e) {
-                        // Ignorar filas con errores
-                    }
+                    } catch (e) {}
                 });
                 
-                delitosLayer = L.geoJSON(features, {
-                    pointToLayer: function(feature, latlng) {
-                        return L.circleMarker(latlng, {
-                            radius: 5,
-                            fillColor: '#ff0000',
-                            color: '#cc0000',
-                            weight: 2,
-                            opacity: 0.9,
-                            fillOpacity: 0.7
-                        });
-                    },
-                    onEachFeature: function(feature, layer) {
-                        const props = feature.properties;
-                        let popupContent = '<div class="info"><h4>🚨 Delito</h4>';
-                        popupContent += `<div class="info-row"><div class="info-label">Delito</div><div class="info-value">${props.delito || 'N/A'}</div></div>`;
-                        popupContent += `<div class="info-row"><div class="info-label">Fecha</div><div class="info-value">${props.fecha || 'N/A'}</div></div>`;
-                        popupContent += `<div class="info-row"><div class="info-label">Colonia</div><div class="info-value">${props.colonia || 'N/A'}</div></div>`;
-                        popupContent += `<div class="info-row"><div class="info-label">Hora</div><div class="info-value">${props.hora || 'N/A'}</div></div>`;
-                        popupContent += `<div class="info-row"><div class="info-label">Bien Afectado</div><div class="info-value">${props.bien_afectado || 'N/A'}</div></div>`;
-                        popupContent += '</div>';
-                        layer.bindPopup(popupContent);
-                    }
-                });
+                addPointLayer('delitos-source', 'delitos-layer', features, '#ff0000', '#cc0000', 5,
+                    '🚨 Delito',
+                    [
+                        { key: 'delito', label: 'Delito' },
+                        { key: 'fecha', label: 'Fecha' },
+                        { key: 'colonia', label: 'Colonia' },
+                        { key: 'hora', label: 'Hora' },
+                        { key: 'bien_afectado', label: 'Bien Afectado' }
+                    ]
+                );
                 
                 document.getElementById('delitos-count').textContent = `${count} delitos`;
                 document.getElementById('stat-delitos').textContent = count;
                 
-                if (document.getElementById('delitos-layer').checked) {
-                    delitosLayer.addTo(map);
-                }
+                const visibility = document.getElementById('delitos-layer').checked ? 'visible' : 'none';
+                map.setLayoutProperty('delitos-layer', 'visibility', visibility);
                 
                 updateDelitosChart();
                 capasCargadas++;
                 if (capasCargadas === totalCapas) {
-                    setTimeout(ajustarMapaACapas, 500); // Esperar un poco para que se rendericen
+                    setTimeout(ajustarMapaACapas, 500);
                 }
                 hideLoading();
             });
         }
         
-        // Cargar capa de recreaciones desde CSV
+        // Cargar capa de recreaciones
         function loadRecreaciones() {
             parseCSV('recreaciones_filtradas.csv', function(data) {
                 const features = [];
@@ -920,7 +1412,6 @@
                 data.forEach(row => {
                     try {
                         let lat = null, lon = null;
-                        
                         for (let key in row) {
                             const keyLower = String(key).toLowerCase();
                             if (keyLower.includes('latitud') || keyLower === 'latitud') {
@@ -940,56 +1431,33 @@
                                 },
                                 properties: {
                                     nombre: row['Nombre de la Unidad Económica'] || '',
-                                    razon_social: row['Razón social'] || '',
                                     actividad: row['Nombre de clase de la actividad'] || '',
                                     colonia: row['Nombre de asentamiento humano'] || '',
-                                    municipio: row['Municipio'] || '',
-                                    codigo_postal: row['Código Postal'] || '',
                                     telefono: row['Número de teléfono'] || '',
                                     sitio_web: row['Sitio en Internet'] || ''
                                 }
                             });
                             count++;
                         }
-                    } catch (e) {
-                        // Ignorar filas con errores
-                    }
+                    } catch (e) {}
                 });
                 
-                recreacionesLayer = L.geoJSON(features, {
-                    pointToLayer: function(feature, latlng) {
-                        return L.circleMarker(latlng, {
-                            radius: 7,
-                            fillColor: '#00aa00',
-                            color: '#008800',
-                            weight: 2,
-                            opacity: 0.9,
-                            fillOpacity: 0.7
-                        });
-                    },
-                    onEachFeature: function(feature, layer) {
-                        const props = feature.properties;
-                        let popupContent = '<div class="info"><h4>🎮 Recreación</h4>';
-                        popupContent += `<div class="info-row"><div class="info-label">Nombre</div><div class="info-value">${props.nombre || 'N/A'}</div></div>`;
-                        popupContent += `<div class="info-row"><div class="info-label">Actividad</div><div class="info-value">${props.actividad || 'N/A'}</div></div>`;
-                        popupContent += `<div class="info-row"><div class="info-label">Colonia</div><div class="info-value">${props.colonia || 'N/A'}</div></div>`;
-                        if (props.telefono) {
-                            popupContent += `<div class="info-row"><div class="info-label">Teléfono</div><div class="info-value">${props.telefono}</div></div>`;
-                        }
-                        if (props.sitio_web) {
-                            popupContent += `<div class="info-row"><div class="info-label">Web</div><div class="info-value"><a href="${props.sitio_web}" target="_blank">${props.sitio_web}</a></div></div>`;
-                        }
-                        popupContent += '</div>';
-                        layer.bindPopup(popupContent);
-                    }
-                });
+                addPointLayer('recreaciones-source', 'recreaciones-layer', features, '#00aa00', '#008800', 7,
+                    '🎮 Recreación',
+                    [
+                        { key: 'nombre', label: 'Nombre' },
+                        { key: 'actividad', label: 'Actividad' },
+                        { key: 'colonia', label: 'Colonia' },
+                        { key: 'telefono', label: 'Teléfono' },
+                        { key: 'sitio_web', label: 'Web', value: (p) => p.sitio_web ? `<a href="${p.sitio_web}" target="_blank">${p.sitio_web}</a>` : '' }
+                    ]
+                );
                 
                 document.getElementById('recreaciones-count').textContent = `${count} establecimientos`;
                 document.getElementById('stat-recreaciones').textContent = count;
                 
-                if (document.getElementById('recreaciones-layer').checked) {
-                    recreacionesLayer.addTo(map);
-                }
+                const visibility = document.getElementById('recreaciones-layer').checked ? 'visible' : 'none';
+                map.setLayoutProperty('recreaciones-layer', 'visibility', visibility);
                 
                 capasCargadas++;
                 if (capasCargadas === totalCapas) {
@@ -998,7 +1466,7 @@
             });
         }
         
-        // Cargar capa de centros de cuidado desde Excel
+        // Cargar capa de centros de cuidado
         function loadCentrosCuidado() {
             showLoading();
             fetch('centros_de_cuidado_filtrados.xlsx')
@@ -1052,59 +1520,30 @@
                                     });
                                     count++;
                                 }
-                            } catch (e) {
-                                // Ignorar filas con errores
-                            }
+                            } catch (e) {}
                         });
                         
-                        centrosCuidadoLayer = L.geoJSON(features, {
-                            pointToLayer: function(feature, latlng) {
-                                return L.circleMarker(latlng, {
-                                    radius: 8,
-                                    fillColor: '#9b59b6',
-                                    color: '#7d3c98',
-                                    weight: 2,
-                                    opacity: 0.9,
-                                    fillOpacity: 0.7
-                                });
-                            },
-                            onEachFeature: function(feature, layer) {
-                                const props = feature.properties;
-                                let popupContent = '<div class="info"><h4>🏥 Centro de Cuidado</h4>';
-                                
-                                let propsShown = 0;
-                                for (let key in props) {
-                                    if (props[key] && props[key] !== '' && propsShown < 8) {
-                                        popupContent += `<div class="info-row"><div class="info-label">${key}</div><div class="info-value">${props[key]}</div></div>`;
-                                        propsShown++;
-                                    }
-                                }
-                                
-                                popupContent += '</div>';
-                                layer.bindPopup(popupContent);
-                            }
-                        });
+                        addPointLayer('centros-cuidado-source', 'centros-cuidado-layer', features, '#9b59b6', '#7d3c98', 8,
+                            '🏥 Centro de Cuidado',
+                            Object.keys(firstRow).filter(k => k !== latCol && k !== lonCol).slice(0, 8).map(k => ({
+                                key: k,
+                                label: k
+                            }))
+                        );
                         
                         document.getElementById('centros-cuidado-count').textContent = `${count} centros`;
                         document.getElementById('stat-centros').textContent = count;
                         
-                        if (document.getElementById('centros-cuidado-layer').checked) {
-                            centrosCuidadoLayer.addTo(map);
-                        }
-                        
-                        capasCargadas++;
-                        if (capasCargadas === totalCapas) {
-                            setTimeout(ajustarMapaACapas, 500);
-                        }
+                        const visibility = document.getElementById('centros-cuidado-layer').checked ? 'visible' : 'none';
+                        map.setLayoutProperty('centros-cuidado-layer', 'visibility', visibility);
                     } else {
-                        console.warn('No se encontraron columnas de coordenadas en el Excel');
                         document.getElementById('centros-cuidado-count').textContent = 'Error: sin coordenadas';
-                        capasCargadas++;
-                        if (capasCargadas === totalCapas) {
-                            setTimeout(ajustarMapaACapas, 500);
-                        }
                     }
                     
+                    capasCargadas++;
+                    if (capasCargadas === totalCapas) {
+                        setTimeout(ajustarMapaACapas, 500);
+                    }
                     hideLoading();
                 })
                 .catch(error => {
@@ -1118,7 +1557,7 @@
                 });
         }
         
-        // Cargar capa de escuelas desde CSV
+        // Cargar capa de escuelas
         function loadEscuelas() {
             parseCSV('escuelas_filtradas.csv', function(data) {
                 const features = [];
@@ -1138,61 +1577,35 @@
                                 },
                                 properties: {
                                     nombre: row['Nombre de la Unidad Económica'] || '',
-                                    razon_social: row['Razón social'] || '',
                                     actividad: row['Nombre de clase de la actividad'] || '',
                                     colonia: row['Nombre de asentamiento humano'] || '',
-                                    municipio: row['Municipio'] || '',
-                                    codigo_postal: row['Código Postal'] || '',
                                     telefono: row['Número de teléfono'] || '',
                                     correo: row['Correo electrónico'] || '',
-                                    sitio_web: row['Sitio en Internet'] || '',
-                                    tipo_establecimiento: row['Tipo de establecimiento'] || ''
+                                    sitio_web: row['Sitio en Internet'] || ''
                                 }
                             });
                             count++;
                         }
-                    } catch (e) {
-                        // Ignorar filas con errores
-                    }
+                    } catch (e) {}
                 });
                 
-                escuelasLayer = L.geoJSON(features, {
-                    pointToLayer: function(feature, latlng) {
-                        return L.circleMarker(latlng, {
-                            radius: 6,
-                            fillColor: '#f5576c',
-                            color: '#e63946',
-                            weight: 2,
-                            opacity: 0.9,
-                            fillOpacity: 0.7
-                        });
-                    },
-                    onEachFeature: function(feature, layer) {
-                        const props = feature.properties;
-                        let popupContent = '<div class="info"><h4>🏫 Escuela</h4>';
-                        popupContent += `<div class="info-row"><div class="info-label">Nombre</div><div class="info-value">${props.nombre || 'N/A'}</div></div>`;
-                        popupContent += `<div class="info-row"><div class="info-label">Actividad</div><div class="info-value">${props.actividad || 'N/A'}</div></div>`;
-                        popupContent += `<div class="info-row"><div class="info-label">Colonia</div><div class="info-value">${props.colonia || 'N/A'}</div></div>`;
-                        if (props.telefono) {
-                            popupContent += `<div class="info-row"><div class="info-label">Teléfono</div><div class="info-value">${props.telefono}</div></div>`;
-                        }
-                        if (props.correo) {
-                            popupContent += `<div class="info-row"><div class="info-label">Correo</div><div class="info-value">${props.correo}</div></div>`;
-                        }
-                        if (props.sitio_web) {
-                            popupContent += `<div class="info-row"><div class="info-label">Web</div><div class="info-value"><a href="${props.sitio_web}" target="_blank">${props.sitio_web}</a></div></div>`;
-                        }
-                        popupContent += '</div>';
-                        layer.bindPopup(popupContent);
-                    }
-                });
+                addPointLayer('escuelas-source', 'escuelas-layer', features, '#f5576c', '#e63946', 6,
+                    '🏫 Escuela',
+                    [
+                        { key: 'nombre', label: 'Nombre' },
+                        { key: 'actividad', label: 'Actividad' },
+                        { key: 'colonia', label: 'Colonia' },
+                        { key: 'telefono', label: 'Teléfono' },
+                        { key: 'correo', label: 'Correo' },
+                        { key: 'sitio_web', label: 'Web', value: (p) => p.sitio_web ? `<a href="${p.sitio_web}" target="_blank">${p.sitio_web}</a>` : '' }
+                    ]
+                );
                 
                 document.getElementById('escuelas-count').textContent = `${count} escuelas`;
                 document.getElementById('stat-escuelas').textContent = count;
                 
-                if (document.getElementById('escuelas-layer').checked) {
-                    escuelasLayer.addTo(map);
-                }
+                const visibility = document.getElementById('escuelas-layer').checked ? 'visible' : 'none';
+                map.setLayoutProperty('escuelas-layer', 'visibility', visibility);
                 
                 capasCargadas++;
                 if (capasCargadas === totalCapas) {
@@ -1201,90 +1614,108 @@
             });
         }
         
-        // Cargar GeoJSON
-        function loadGeoJSON(url, options, callback) {
-            fetch(url)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    const layer = L.geoJSON(data, options);
-                    callback(layer);
-                })
-                .catch(error => {
-                    console.warn(`No se pudo cargar GeoJSON ${url}:`, error);
-                    callback(null);
-                });
-        }
-        
         // Cargar capa de colonias
         function loadColonias() {
             showLoading();
-            loadGeoJSON('colonias_filtradas.geojson', {
-                style: function(feature) {
-                    return {
-                        color: '#2563eb',
-                        weight: 3,
-                        opacity: 0.8,
-                        fillColor: '#2563eb',
-                        fillOpacity: 0.4
-                    };
-                },
-                onEachFeature: function(feature, layer) {
-                    if (feature.properties) {
-                        const props = feature.properties;
-                        coloniasData.push(props);
-                        
-                        // Almacenar la capa individual de la colonia para zoom
-                        const nombreColonia = props.NOMBRE || 'Sin nombre';
-                        if (!coloniasLayersMap[nombreColonia]) {
-                            coloniasLayersMap[nombreColonia] = [];
+            fetch('colonias_filtradas.geojson')
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    coloniasData = [];
+                    const features = data.features || [];
+                    
+                    features.forEach(feature => {
+                        if (feature.properties) {
+                            coloniasData.push(feature.properties);
+                            const nombreColonia = feature.properties.NOMBRE || 'Sin nombre';
+                            if (!coloniasLayersMap[nombreColonia]) {
+                                coloniasLayersMap[nombreColonia] = [];
+                            }
+                            coloniasLayersMap[nombreColonia].push(feature);
                         }
-                        coloniasLayersMap[nombreColonia].push(layer);
+                    });
+                    
+                    if (map.getSource('colonias-source')) {
+                        map.getSource('colonias-source').setData(data);
+                    } else {
+                        map.addSource('colonias-source', {
+                            type: 'geojson',
+                            data: data
+                        });
                         
-                        let popupContent = '<div class="info"><h4>🏘️ Colonia</h4>';
-                        
-                        // Mostrar todas las variables importantes
-                        const importantFields = [
-                            'NOMBRE', 'MUNS', 'NUMCOL', 'CP', 'POBTOT', 'POBFEM', 'POBMAS',
-                            'P_0A2', 'P_3YMAS', 'P_5YMAS', 'P_12YMAS', 'P_15YMAS', 'P_18YMAS',
-                            'POB0_14', 'POB15_64', 'POB65_MAS', 'VIVTOT', 'supm2', 'PROM_HNV',
-                            'REL_H_M', 'P_60YMAS', 'P_15A49_F'
-                        ];
-                        
-                        importantFields.forEach(field => {
-                            if (props[field] !== null && props[field] !== undefined && props[field] !== '') {
-                                let value = props[field];
-                                if (typeof value === 'number') {
-                                    if (field.includes('POB') || field.includes('P_') || field === 'VIVTOT') {
-                                        value = value.toLocaleString();
-                                    } else if (field === 'supm2') {
-                                        value = (value / 10000).toFixed(2) + ' ha';
-                                    }
-                                }
-                                popupContent += `<div class="info-row"><div class="info-label">${field}</div><div class="info-value">${value}</div></div>`;
+                        // Capa de relleno
+                        map.addLayer({
+                            id: 'colonias-fill',
+                            type: 'fill',
+                            source: 'colonias-source',
+                            paint: {
+                                'fill-color': '#2563eb',
+                                'fill-opacity': 0.4
                             }
                         });
                         
-                        popupContent += '</div>';
-                        layer.bindPopup(popupContent);
+                        // Capa de borde
+                        map.addLayer({
+                            id: 'colonias-stroke',
+                            type: 'line',
+                            source: 'colonias-source',
+                            paint: {
+                                'line-color': '#2563eb',
+                                'line-width': 3,
+                                'line-opacity': 0.8
+                            }
+                        });
+                        
+                        // Popups
+                        map.on('click', 'colonias-fill', function(e) {
+                            const props = e.features[0].properties;
+                            let popupContent = '<div class="info"><h4>🏘️ Colonia</h4>';
+                            
+                            const importantFields = [
+                                'NOMBRE', 'MUNS', 'NUMCOL', 'CP', 'POBTOT', 'POBFEM', 'POBMAS',
+                                'P_0A2', 'P_3YMAS', 'P_5YMAS', 'P_12YMAS', 'P_15YMAS', 'P_18YMAS',
+                                'POB0_14', 'POB15_64', 'POB65_MAS', 'VIVTOT', 'supm2', 'PROM_HNV',
+                                'REL_H_M', 'P_60YMAS', 'P_15A49_F'
+                            ];
+                            
+                            importantFields.forEach(field => {
+                                if (props[field] !== null && props[field] !== undefined && props[field] !== '') {
+                                    let value = props[field];
+                                    if (typeof value === 'number') {
+                                        if (field.includes('POB') || field.includes('P_') || field === 'VIVTOT') {
+                                            value = value.toLocaleString();
+                                        } else if (field === 'supm2') {
+                                            value = (value / 10000).toFixed(2) + ' ha';
+                                        }
+                                    }
+                                    popupContent += `<div class="info-row"><div class="info-label">${field}</div><div class="info-value">${value}</div></div>`;
+                                }
+                            });
+                            
+                            popupContent += '</div>';
+                            
+                            new mapboxgl.Popup()
+                                .setLngLat(e.lngLat)
+                                .setHTML(popupContent)
+                                .addTo(map);
+                        });
+                        
+                        // Cursor
+                        map.on('mouseenter', 'colonias-fill', function() {
+                            map.getCanvas().style.cursor = 'pointer';
+                        });
+                        map.on('mouseleave', 'colonias-fill', function() {
+                            map.getCanvas().style.cursor = '';
+                        });
                     }
-                }
-            }, (layer) => {
-                if (layer) {
-                    coloniasLayer = layer;
+                    
                     const count = coloniasData.length;
                     document.getElementById('colonias-info').textContent = `Cargado (${count} colonias)`;
                     document.getElementById('stat-colonias').textContent = count;
                     
-                    if (document.getElementById('colonias-layer').checked) {
-                        coloniasLayer.addTo(map);
-                    }
-                    
-                    // Poblar el selector de colonias
+                    // Poblar selector
                     const selector = document.getElementById('colonia-selector');
                     const nombresUnicos = Object.keys(coloniasLayersMap).sort();
                     nombresUnicos.forEach(nombre => {
@@ -1294,70 +1725,102 @@
                         selector.appendChild(option);
                     });
                     
+                    const visibility = document.getElementById('colonias-layer').checked ? 'visible' : 'none';
+                    map.setLayoutProperty('colonias-fill', 'visibility', visibility);
+                    map.setLayoutProperty('colonias-stroke', 'visibility', visibility);
+                    
                     updatePoblacionChart();
                     capasCargadas++;
                     if (capasCargadas === totalCapas) {
                         setTimeout(ajustarMapaACapas, 500);
                     }
                     hideLoading();
-                } else {
+                })
+                .catch(error => {
+                    console.warn('Error al cargar colonias:', error);
                     document.getElementById('colonias-info').textContent = 'Error al cargar';
                     hideLoading();
-                }
-            });
+                });
         }
         
         // Cargar capa de rutas
         function loadRutas() {
-            loadGeoJSON('rutas_filtradas.geojson', {
-                style: function(feature) {
-                    return {
-                        color: '#ff7800',
-                        weight: 4,
-                        opacity: 0.8
-                    };
-                },
-                onEachFeature: function(feature, layer) {
-                    if (feature.properties) {
-                        const props = feature.properties;
-                        let popupContent = '<div class="info"><h4>🚌 Ruta de Transporte</h4>';
-                        if (props.NAME) {
-                            popupContent += `<div class="info-row"><div class="info-label">Nombre</div><div class="info-value">${props.NAME}</div></div>`;
-                        }
-                        if (props.SHAPE_LENG) {
-                            const km = (props.SHAPE_LENG / 1000).toFixed(2);
-                            popupContent += `<div class="info-row"><div class="info-label">Longitud</div><div class="info-value">${km} km</div></div>`;
-                        }
-                        if (props.FOLDERPATH) {
-                            popupContent += `<div class="info-row"><div class="info-label">Ruta</div><div class="info-value">${props.FOLDERPATH}</div></div>`;
-                        }
-                        popupContent += '</div>';
-                        layer.bindPopup(popupContent);
+            fetch('rutas_filtradas.geojson')
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (map.getSource('rutas-source')) {
+                        map.getSource('rutas-source').setData(data);
+                    } else {
+                        map.addSource('rutas-source', {
+                            type: 'geojson',
+                            data: data
+                        });
+                        
+                        map.addLayer({
+                            id: 'rutas-layer',
+                            type: 'line',
+                            source: 'rutas-source',
+                            paint: {
+                                'line-color': '#ff7800',
+                                'line-width': 4,
+                                'line-opacity': 0.8
+                            }
+                        });
+                        
+                        // Popups
+                        map.on('click', 'rutas-layer', function(e) {
+                            const props = e.features[0].properties;
+                            let popupContent = '<div class="info"><h4>🚌 Ruta de Transporte</h4>';
+                            if (props.NAME) {
+                                popupContent += `<div class="info-row"><div class="info-label">Nombre</div><div class="info-value">${props.NAME}</div></div>`;
+                            }
+                            if (props.SHAPE_LENG) {
+                                const km = (props.SHAPE_LENG / 1000).toFixed(2);
+                                popupContent += `<div class="info-row"><div class="info-label">Longitud</div><div class="info-value">${km} km</div></div>`;
+                            }
+                            if (props.FOLDERPATH) {
+                                popupContent += `<div class="info-row"><div class="info-label">Ruta</div><div class="info-value">${props.FOLDERPATH}</div></div>`;
+                            }
+                            popupContent += '</div>';
+                            
+                            new mapboxgl.Popup()
+                                .setLngLat(e.lngLat)
+                                .setHTML(popupContent)
+                                .addTo(map);
+                        });
+                        
+                        // Cursor
+                        map.on('mouseenter', 'rutas-layer', function() {
+                            map.getCanvas().style.cursor = 'pointer';
+                        });
+                        map.on('mouseleave', 'rutas-layer', function() {
+                            map.getCanvas().style.cursor = '';
+                        });
                     }
-                }
-            }, (layer) => {
-                if (layer) {
-                    rutasLayer = layer;
-                    const count = layer.getLayers().length;
+                    
+                    const count = (data.features || []).length;
                     document.getElementById('rutas-info').textContent = `Cargado (${count} rutas)`;
                     document.getElementById('stat-rutas').textContent = count;
                     
-                    if (document.getElementById('rutas-layer').checked) {
-                        rutasLayer.addTo(map);
-                    }
+                    const visibility = document.getElementById('rutas-layer').checked ? 'visible' : 'none';
+                    map.setLayoutProperty('rutas-layer', 'visibility', visibility);
                     
                     capasCargadas++;
                     if (capasCargadas === totalCapas) {
                         setTimeout(ajustarMapaACapas, 500);
                     }
-                } else {
+                })
+                .catch(error => {
+                    console.warn('Error al cargar rutas:', error);
                     document.getElementById('rutas-info').textContent = 'Error al cargar';
                     capasCargadas++;
                     if (capasCargadas === totalCapas) {
                         setTimeout(ajustarMapaACapas, 500);
                     }
-                }
-            });
+                });
         }
         
         // Actualizar gráfico de delitos
@@ -1377,12 +1840,7 @@
                     labels: Object.keys(delitosPorTipo),
                     datasets: [{
                         data: Object.values(delitosPorTipo),
-                        backgroundColor: [
-                            '#ff6b6b',
-                            '#ee5a6f',
-                            '#ff8787',
-                            '#ffa8a8'
-                        ]
+                        backgroundColor: ['#ff6b6b', '#ee5a6f', '#ff8787', '#ffa8a8']
                     }]
                 },
                 options: {
@@ -1442,68 +1900,43 @@
         
         // Controladores de checkboxes
         document.getElementById('colonias-layer').addEventListener('change', function(e) {
-            if (coloniasLayer) {
-                if (e.target.checked) {
-                    coloniasLayer.addTo(map);
-                } else {
-                    map.removeLayer(coloniasLayer);
-                }
-                // No reajustar el mapa al cambiar capas
-            }
+            const visibility = e.target.checked ? 'visible' : 'none';
+            map.setLayoutProperty('colonias-fill', 'visibility', visibility);
+            map.setLayoutProperty('colonias-stroke', 'visibility', visibility);
         });
         
         document.getElementById('rutas-layer').addEventListener('change', function(e) {
-            if (rutasLayer) {
-                if (e.target.checked) {
-                    rutasLayer.addTo(map);
-                } else {
-                    map.removeLayer(rutasLayer);
-                }
-                // No reajustar el mapa al cambiar capas
+            const visibility = e.target.checked ? 'visible' : 'none';
+            if (map.getLayer('rutas-layer')) {
+                map.setLayoutProperty('rutas-layer', 'visibility', visibility);
             }
         });
         
         document.getElementById('delitos-layer').addEventListener('change', function(e) {
-            if (delitosLayer) {
-                if (e.target.checked) {
-                    delitosLayer.addTo(map);
-                } else {
-                    map.removeLayer(delitosLayer);
-                }
-                // No reajustar el mapa al cambiar capas
+            const visibility = e.target.checked ? 'visible' : 'none';
+            if (map.getLayer('delitos-layer')) {
+                map.setLayoutProperty('delitos-layer', 'visibility', visibility);
             }
         });
         
         document.getElementById('recreaciones-layer').addEventListener('change', function(e) {
-            if (recreacionesLayer) {
-                if (e.target.checked) {
-                    recreacionesLayer.addTo(map);
-                } else {
-                    map.removeLayer(recreacionesLayer);
-                }
-                // No reajustar el mapa al cambiar capas
+            const visibility = e.target.checked ? 'visible' : 'none';
+            if (map.getLayer('recreaciones-layer')) {
+                map.setLayoutProperty('recreaciones-layer', 'visibility', visibility);
             }
         });
         
         document.getElementById('centros-cuidado-layer').addEventListener('change', function(e) {
-            if (centrosCuidadoLayer) {
-                if (e.target.checked) {
-                    centrosCuidadoLayer.addTo(map);
-                } else {
-                    map.removeLayer(centrosCuidadoLayer);
-                }
-                // No reajustar el mapa al cambiar capas
+            const visibility = e.target.checked ? 'visible' : 'none';
+            if (map.getLayer('centros-cuidado-layer')) {
+                map.setLayoutProperty('centros-cuidado-layer', 'visibility', visibility);
             }
         });
         
         document.getElementById('escuelas-layer').addEventListener('change', function(e) {
-            if (escuelasLayer) {
-                if (e.target.checked) {
-                    escuelasLayer.addTo(map);
-                } else {
-                    map.removeLayer(escuelasLayer);
-                }
-                // No reajustar el mapa al cambiar capas
+            const visibility = e.target.checked ? 'visible' : 'none';
+            if (map.getLayer('escuelas-layer')) {
+                map.setLayoutProperty('escuelas-layer', 'visibility', visibility);
             }
         });
         
@@ -1512,42 +1945,54 @@
             const nombreColonia = e.target.value;
             
             if (!nombreColonia) {
-                // Si se selecciona "Todas", ajustar a todas las colonias
                 ajustarMapaACapas();
                 return;
             }
             
-            const layers = coloniasLayersMap[nombreColonia];
-            if (layers && layers.length > 0) {
-                // Crear un grupo con todas las capas de esa colonia
-                const group = new L.featureGroup(layers);
-                const bounds = group.getBounds();
+            const features = coloniasLayersMap[nombreColonia];
+            if (features && features.length > 0) {
+                const bounds = new mapboxgl.LngLatBounds();
                 
-                if (bounds.isValid()) {
-                    // Hacer zoom a la colonia con animación
-                    map.flyToBounds(bounds, {
-                        padding: [50, 50],
-                        maxZoom: 16,
-                        duration: 1.5
+                features.forEach(feature => {
+                    if (feature.geometry.type === 'Polygon') {
+                        feature.geometry.coordinates[0].forEach(coord => {
+                            bounds.extend(coord);
+                        });
+                    } else if (feature.geometry.type === 'MultiPolygon') {
+                        feature.geometry.coordinates.forEach(polygon => {
+                            polygon[0].forEach(coord => {
+                                bounds.extend(coord);
+                            });
+                        });
+                    }
+                });
+                
+                if (bounds.isEmpty() === false) {
+                    map.flyTo({
+                        center: bounds.getCenter(),
+                        zoom: 15,
+                        pitch: map.getPitch(),
+                        bearing: map.getBearing(),
+                        duration: 1500
                     });
                     
-                    // Resaltar la colonia temporalmente
-                    layers.forEach(layer => {
-                        layer.setStyle({
-                            color: '#ff0000',
-                            weight: 4,
-                            fillOpacity: 0.6
+                    // Resaltar colonia temporalmente
+                    const source = map.getSource('colonias-source');
+                    if (source && source._data) {
+                        const originalData = JSON.parse(JSON.stringify(source._data));
+                        const highlightedData = JSON.parse(JSON.stringify(source._data));
+                        
+                        highlightedData.features.forEach(f => {
+                            if (f.properties.NOMBRE === nombreColonia) {
+                                // Cambiar estilo temporalmente
+                            }
                         });
                         
-                        // Restaurar estilo después de 3 segundos
+                        // Restaurar después de 3 segundos
                         setTimeout(() => {
-                            layer.setStyle({
-                                color: '#2563eb',
-                                weight: 3,
-                                fillOpacity: 0.4
-                            });
+                            source.setData(originalData);
                         }, 3000);
-                    });
+                    }
                 }
             }
         });
@@ -1562,17 +2007,7 @@
             const chartsSidebar = document.getElementById('charts-sidebar');
             chartsSidebar.classList.toggle('hidden');
         });
-        
-        // Cargar todas las capas al iniciar
-        window.addEventListener('load', function() {
-            console.log('Iniciando carga de capas...');
-            loadColonias();
-            loadRutas();
-            loadDelitos();
-            loadRecreaciones();
-            loadCentrosCuidado();
-            loadEscuelas();
-        });
     </script>
 </body>
 </html>
+

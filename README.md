@@ -12,16 +12,19 @@ Dashboard interactivo que visualiza datos geoespaciales de colonias específicas
 
 ## 📊 Características
 
-- **Visualización Interactiva**: Mapa interactivo con múltiples capas
+- **Visualización 3D**: Mapa interactivo con soporte 3D (pitch, bearing)
+- **Vista Satelital**: Mapa base satelital con calles de Mapbox
 - **Estadísticas en Tiempo Real**: Tarjetas con métricas clave
 - **Gráficos Dinámicos**: Visualización de delitos y población
 - **Diseño Responsivo**: Optimizado para desktop, tablet y móvil
+- **Navegación por Colonias**: Selector para hacer zoom automático a colonias específicas
 - **Múltiples Capas**:
-  - Colonias (polígonos)
+  - Colonias (polígonos con relleno y borde)
   - Rutas de transporte público
   - Delitos registrados
   - Establecimientos de recreación
   - Centros de cuidado
+  - Escuelas
 
 ## 🚀 Uso
 
@@ -49,16 +52,27 @@ El dashboard está disponible en: [GitHub Pages](https://[tu-usuario].github.io/
 ├── delitos_filtrados.csv        # Datos de delitos
 ├── recreaciones_filtradas.csv   # Establecimientos de recreación
 ├── centros_de_cuidado_filtrados.xlsx  # Centros de cuidado
+├── escuelas_filtradas.csv            # Escuelas
 └── README.md                    # Este archivo
 ```
 
 ## 🛠️ Tecnologías
 
-- **Leaflet.js**: Visualización de mapas
+- **Mapbox GL JS**: Visualización de mapas 3D
 - **Chart.js**: Gráficos interactivos
 - **PapaParse**: Procesamiento de CSV
 - **SheetJS**: Lectura de archivos Excel
-- **OpenStreetMap**: Capa base del mapa
+- **Mapbox**: Capa base del mapa con soporte 3D
+
+## 🔑 Configuración de Mapbox
+
+Este proyecto usa Mapbox GL JS para visualización 3D. Necesitas un token de Mapbox:
+
+1. Crea una cuenta en [Mapbox](https://account.mapbox.com/)
+2. Obtén tu token de acceso en [Access Tokens](https://account.mapbox.com/access-tokens/)
+3. Reemplaza el token en `index.html` (línea con `mapboxgl.accessToken`)
+
+**Nota**: El token actual es un token público de ejemplo que puede tener limitaciones. Se recomienda usar tu propio token para producción.
 
 ## 📱 Diseño Responsivo
 
